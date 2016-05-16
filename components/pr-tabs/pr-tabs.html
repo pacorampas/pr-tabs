@@ -1,0 +1,164 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+An element for making a list of tabs
+
+Example:
+
+    <pr-tabs>
+      <pr-tab>Text</pr-tab>
+      <pr-tab>Text One</pr-tab>
+      <pr-tab>Text Two</pr-tab>
+    </pr-tabs>
+
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="pr-tabs">
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+        overflow-x: scroll;
+      }
+      #tabsContainer {
+        position: relative;
+        font-size: 0;
+        white-space: nowrap;
+      }
+      #tabIndicator {
+        position: absolute;
+        bottom: 0;
+        height: 2px;
+        background: #999;
+        transition: transform 0.2s;
+      }
+    </style>
+    <div id="tabsContainer">
+      <content id="content"></content>
+      <div id="tabIndicator"></div>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'pr-tabs',
+
+      properties: {
+        /**
+         * `tabs` list of tabs into the pr-tabs element.
+         *
+         * @type Array
+         */
+        tabs: {
+          type: Array,
+          value: []
+        },
+        /**
+         * `widhtTabs` sum of the width of all tabs
+         *
+         * @type Number
+         */
+        widthTabs: {
+          type: Number,
+          value: 0
+        },
+        /**
+         * `active` indicates the index of selected tab
+         *
+         */
+        active: {
+          type: Number,
+          value: 0,
+          notify: true,
+          reflectToAttribute: true,
+          observer: '_activeChangedObserver'
+        }
+      },
+
+      listeners: {
+        tap: '_handleTap'
+      },
+
+      ready: function() {
+        this.tabs = [];
+      },
+
+      _handleTap: function(e) {
+        var tab = e.target;
+        this.active = tab.getAttribute('index');
+      },
+
+      attached: function() {
+        var contentNode = Polymer.dom(this.$.content);
+        this._observer = contentNode.observeNodes((info) => {
+          this._initNewChildNodeAdded(info.addedNodes);
+          Polymer.dom(this.$.content).unobserveNodes(this._observer);
+        });
+      },
+
+      _initNewChildNodeAdded: function(addedNodes) {
+        var nodes = addedNodes;
+        var w = this.widthTabs;
+
+        for (var index in nodes) {
+          if (nodes[index].nodeName === '#text') {
+            continue;
+          }
+
+          var elStyles = getComputedStyle(nodes[index]);
+          var marginRight = parseFloat(elStyles.marginRight.replace('px', ''));
+          var marginLeft = parseFloat(elStyles.marginLeft.replace('px', ''));
+          nodes[index].setAttribute('index', this.tabs.length);
+          this.tabs.push({
+            node: nodes[index],
+            leftPosition: w,
+            width: nodes[index].offsetWidth + marginRight + marginLeft
+          });
+          w += nodes[index].offsetWidth + marginRight + marginLeft;
+        }
+        this.widthTabs = w;
+        this._setIndicatorPosition();
+        this.setActive();
+      },
+      /**
+       * Sets the index of new active tab and clean the previuos active
+       *
+       * @param Number
+       * @param Number
+       *
+       */
+      setActive: function() {
+        this.tabs[this.active].node.active = true;
+      },
+
+      _activeChangedObserver: function(newActive, oldActive) {
+        if (this.tabs.length <= 0) {
+          return;
+        }
+
+        this.tabs[oldActive].node.active = false;
+        this.tabs[newActive].node.active = true;
+        this._setIndicatorPosition();
+      },
+
+      _setIndicatorPosition: function() {
+        this.$.tabIndicator.style.width = this.tabs[this.active].width+'px';
+        var indicatorLeftPosition = this.tabs[this.active].leftPosition;
+        this.translate3d(indicatorLeftPosition+'px', '0', '0', this.$.tabIndicator);
+      }
+    });
+  </script>
+</dom-module>
