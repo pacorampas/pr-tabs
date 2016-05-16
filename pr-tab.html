@@ -15,13 +15,8 @@ An element providing a solution to no problem in particular.
 
 Example:
 
-    <pr-tab></pr-tab>
+    <pr-tab>Text</pr-tab>
 
-Example:
-
-    <pr-tab>
-      <h2>Hello pr-tab</h2>
-    </pr-tab>
 
 @demo demo/index.html
 @hero hero.svg
@@ -36,7 +31,13 @@ Example:
         box-sizing: border-box;
         background: blue;
         font-size: 14px;
-        color: #fff;
+        color: #333;
+        background: #fff;
+        border: solid 1px #ddd;
+        border-bottom: 0;
+        border-radius: 5px;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
         cursor: pointer;
         -moz-user-select: none;
         -ms-user-select: none;
@@ -44,8 +45,13 @@ Example:
         user-select: none;
       }
 
+      :host:not([active]):hover,
+      :host:not([active]):active {
+        background: #e9e9e9;
+      }
+
       :host[active] {
-        background: green;
+        background: #ddd;
       }
     </style>
 
@@ -69,32 +75,6 @@ Example:
         'tap': '_handleTap'
       },
 
-      // Element Lifecycle
-
-      ready: function() {
-        // `ready` is called after all elements have been configured, but
-        // propagates bottom-up. This element's children are ready, but parents
-        // are not.
-        //
-        // This is the point where you should make modifications to the DOM (when
-        // necessary), or kick off any processes the element wants to perform.
-      },
-
-      attached: function() {
-        // `attached` fires once the element and its parents have been inserted
-        // into a document.
-        //
-        // This is a good place to perform any work related to your element's
-        // visual state or active behavior (measuring sizes, beginning animations,
-        // loading resources, etc).
-      },
-
-      detached: function() {
-        // The analog to `attached`, `detached` fires when the element has been
-        // removed from a document.
-        //
-        // Use this to clean up anything you did in `attached`.
-      },
       _handleTap: function() {
         this.active = true;
       },

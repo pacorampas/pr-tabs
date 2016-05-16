@@ -11,16 +11,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../polymer/polymer.html">
 
 <!--
-An element providing a solution to no problem in particular.
-
-Example:
-
-    <pr-tabs></pr-tabs>
+An element for making a list of tabs
 
 Example:
 
     <pr-tabs>
-      <h2>Hello pr-tabs</h2>
+      <pr-tab>Text</pr-tab>
+      <pr-tab>Text One</pr-tab>
+      <pr-tab>Text Two</pr-tab>
     </pr-tabs>
 
 @demo demo/index.html
@@ -39,13 +37,12 @@ Example:
         position: relative;
         font-size: 0;
         white-space: nowrap;
-        background: blue;
       }
       #tabIndicator {
         position: absolute;
         bottom: 0;
         height: 2px;
-        background: red;
+        background: #999;
         transition: transform 0.2s;
       }
     </style>
@@ -60,32 +57,34 @@ Example:
       is: 'pr-tabs',
 
       properties: {
+        /**
+         * `tabs` list of tabs into the pr-tabs element.
+         *
+         * @type Array
+         */
         tabs: {
           type: Array,
           value: []
         },
-        selected: {
+        /**
+         * `widhtTabs` sum of the width of all tabs
+         *
+         * @type Number
+         */
+        widthTabs: {
           type: Number,
           value: 0
         },
-        width: {
-          type: Number
-        },
-        widthTabs: {
-          type: String,
-          value: 0
-        },
+        /**
+         * `active` indicates the index of selected tab
+         *
+         */
         active: {
           type: Number,
           value: 0,
           notify: true,
           reflectToAttribute: true,
           observer: '_activeChangedObserver'
-        },
-        length: {
-          type: Number,
-          value: 0,
-          reflectToAttribute: true
         }
       },
 
@@ -103,7 +102,6 @@ Example:
       },
 
       attached: function() {
-        this.width = this.offsetWidth;
         var contentNode = Polymer.dom(this.$.content);
         this._observer = contentNode.observeNodes((info) => {
           this._initNewChildNodeAdded(info.addedNodes);
@@ -132,11 +130,16 @@ Example:
           w += nodes[index].offsetWidth + marginRight + marginLeft;
         }
         this.widthTabs = w;
-        this.length = this.tabs.length;
         this._setIndicatorPosition();
         this.setActive();
       },
-
+      /**
+       * Sets the index of new active tab and clean the previuos active
+       *
+       * @param Number
+       * @param Number
+       *
+       */
       setActive: function() {
         this.tabs[this.active].node.active = true;
       },
